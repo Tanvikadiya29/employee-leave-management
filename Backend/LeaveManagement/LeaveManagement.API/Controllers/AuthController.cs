@@ -28,21 +28,5 @@ public class AuthController(IAuthService authService) : ControllerBase
         return Ok(result);
     }
 
-    [HttpPost("register")]
-    [Authorize(Roles = "Admin")]
-    [ProducesResponseType(200)]
-    [ProducesResponseType(400)]
-    [ProducesResponseType(401)]
-    [ProducesResponseType(403)]
-    public async Task<IActionResult> Register([FromBody] RegisterDto dto)
-    {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
 
-        var (success, message, userId) = await _authService.RegisterAsync(dto);
-        if (!success)
-            return BadRequest(new { message });
-
-        return Ok(new { message, userId });
-    }
 }
