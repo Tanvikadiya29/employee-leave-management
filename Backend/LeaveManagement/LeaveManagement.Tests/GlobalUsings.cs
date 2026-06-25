@@ -1,0 +1,13 @@
+global using Xunit;
+global using FluentAssertions;
+global using Moq;
+global using Microsoft.EntityFrameworkCore;
+global using LeaveManagement.API.Data;
+global using LeaveManagement.API.Models;
+global using LeaveManagement.API.DTOs.Auth;
+global using LeaveManagement.API.DTOs.Employee;
+global using LeaveManagement.API.DTOs.Leave;
+global using LeaveManagement.API.DTOs.Common;
+global using LeaveManagement.API.Services;
+global using LeaveManagement.API.Services.Interfaces;
+global using LeaveManagement.Tests.TestHelpers;

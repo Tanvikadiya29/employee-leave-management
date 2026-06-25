@@ -1,11 +1,14 @@
 using LeaveManagement.API.Data;
 using LeaveManagement.API.Middleware;
+using LeaveManagement.API.Models;
 using LeaveManagement.API.Services;
 using LeaveManagement.API.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Npgsql;
+using Npgsql.NameTranslation;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,9 +16,16 @@ var builder = WebApplication.CreateBuilder(args);
 // ══════════════════════════════════════════════════════════════
 // 1. DATABASE
 // ══════════════════════════════════════════════════════════════
+// Register the PostgreSQL ENUM type so Npgsql can read/write LeaveStatus values.
+// This must be done on the data source level in Npgsql 8+.
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")!;
+var dataSourceBuilder = new NpgsqlDataSourceBuilder(connectionString);
+dataSourceBuilder.MapEnum<LeaveStatus>("leave_status", nameTranslator: new NpgsqlNullNameTranslator());
+var dataSource = dataSourceBuilder.Build();
+
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(
-        builder.Configuration.GetConnectionString("DefaultConnection"),
+        dataSource,
         npgsqlOptions => npgsqlOptions.EnableRetryOnFailure(
             maxRetryCount: 3,
             maxRetryDelay: TimeSpan.FromSeconds(5),

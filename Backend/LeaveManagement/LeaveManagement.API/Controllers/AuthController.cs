@@ -8,16 +8,10 @@ namespace LeaveManagement.API.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Produces("application/json")]
-public class AuthController : ControllerBase
+public class AuthController(IAuthService authService) : ControllerBase
 {
-    private readonly IAuthService _authService;
+    private readonly IAuthService _authService = authService;
 
-    public AuthController(IAuthService authService)
-    {
-        _authService = authService;
-    }
-
-    /// <summary>Login and receive a JWT token.</summary>
     [HttpPost("login")]
     [AllowAnonymous]
     [ProducesResponseType(typeof(AuthResponseDto), 200)]
@@ -34,7 +28,6 @@ public class AuthController : ControllerBase
         return Ok(result);
     }
 
-    /// <summary>Register a new user. Admin only.</summary>
     [HttpPost("register")]
     [Authorize(Roles = "Admin")]
     [ProducesResponseType(200)]

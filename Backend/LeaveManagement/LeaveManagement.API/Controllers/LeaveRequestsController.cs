@@ -20,7 +20,6 @@ public class LeaveRequestsController : ControllerBase
         _leaveService = leaveService;
     }
 
-    /// <summary>Get all leave requests. Admin only. Supports ?status=Pending filter.</summary>
     [HttpGet]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> GetAll(
@@ -31,7 +30,6 @@ public class LeaveRequestsController : ControllerBase
         return Ok(result);
     }
 
-    /// <summary>Get the current employee's own leave requests.</summary>
     [HttpGet("my")]
     [Authorize(Roles = "Employee")]
     public async Task<IActionResult> GetMyLeaves([FromQuery] PaginationParams pagination)
@@ -41,12 +39,11 @@ public class LeaveRequestsController : ControllerBase
         return Ok(result);
     }
 
-    /// <summary>Get a specific leave request by ID.</summary>
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetById(int id)
     {
-        int    userId = GetCurrentUserId();
-        string role   = GetCurrentUserRole();
+        int userId = GetCurrentUserId();
+        string role = GetCurrentUserRole();
 
         var result = await _leaveService.GetByIdAsync(id, userId, role);
         if (!result.Success)
@@ -55,7 +52,6 @@ public class LeaveRequestsController : ControllerBase
         return Ok(result);
     }
 
-    /// <summary>Create a new leave request. Employee only.</summary>
     [HttpPost]
     [Authorize(Roles = "Employee")]
     public async Task<IActionResult> Create([FromBody] CreateLeaveRequestDto dto)
@@ -70,33 +66,30 @@ public class LeaveRequestsController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = result.Data!.Id }, result);
     }
 
-    /// <summary>Approve a pending leave request. Admin only.</summary>
     [HttpPut("{id:int}/approve")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Approve(int id, [FromBody] ReviewLeaveDto dto)
     {
         int adminId = GetCurrentUserId();
-        var result  = await _leaveService.ApproveAsync(id, adminId, dto);
+        var result = await _leaveService.ApproveAsync(id, adminId, dto);
         if (!result.Success)
             return BadRequest(new { result.Message });
 
         return Ok(result);
     }
 
-    /// <summary>Reject a pending leave request. Admin only.</summary>
     [HttpPut("{id:int}/reject")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Reject(int id, [FromBody] ReviewLeaveDto dto)
     {
         int adminId = GetCurrentUserId();
-        var result  = await _leaveService.RejectAsync(id, adminId, dto);
+        var result = await _leaveService.RejectAsync(id, adminId, dto);
         if (!result.Success)
             return BadRequest(new { result.Message });
 
         return Ok(result);
     }
 
-    /// <summary>Cancel own pending leave request. Employee only.</summary>
     [HttpDelete("{id:int}")]
     [Authorize(Roles = "Employee")]
     public async Task<IActionResult> Cancel(int id)

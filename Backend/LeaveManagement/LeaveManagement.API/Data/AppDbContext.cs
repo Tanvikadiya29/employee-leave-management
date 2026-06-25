@@ -1,5 +1,7 @@
 using LeaveManagement.API.Models;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
+using Npgsql.NameTranslation;
 
 namespace LeaveManagement.API.Data;
 
@@ -14,6 +16,10 @@ public class AppDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+        // Only register Postgres ENUM when using Npgsql — InMemory provider ignores this
+        if (Database.ProviderName?.Contains("Npgsql") == true)
+            modelBuilder.HasPostgresEnum<LeaveStatus>("leave_status", nameTranslator: new NpgsqlNullNameTranslator());
 
         modelBuilder.Entity<Role>()         .ToTable("roles");
         modelBuilder.Entity<User>()         .ToTable("users");
@@ -46,8 +52,7 @@ public class AppDbContext : DbContext
             e.Property(l => l.FromDate)   .HasColumnName("from_date");
             e.Property(l => l.ToDate)     .HasColumnName("to_date");
             e.Property(l => l.Reason)     .HasColumnName("reason");
-            e.Property(l => l.Status)     .HasColumnName("status")
-                                          .HasConversion<string>();
+            e.Property(l => l.Status)     .HasColumnName("status");
             e.Property(l => l.ReviewedBy) .HasColumnName("reviewed_by");
             e.Property(l => l.ReviewedAt) .HasColumnName("reviewed_at");
             e.Property(l => l.Remarks)    .HasColumnName("remarks");
